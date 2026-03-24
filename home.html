@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FamShop Assistant</title>
+  <!-- Bootstrap 5 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <style>
+    :root {
+      --bg-light: #f8f9fa;
+      --primary-blue: #b9d1e2;
+      --dark-blue: #2c3e50;
+      --accent-green: #d1e2c4;
+      --circle-blue: #8eb9cf;
+      --circle-dark: #4a628a;
+      --circle-tan: #e8dcc4;
+      --input-bg: #ffffff;
+      --transition-speed: 0.4s;
+    }
+
+    body,
+    html {
+      height: 100%;
+      margin: 0;
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-light);
+      overflow: hidden;
+    }
+
+  /* Decorative Background Elements */
+  .bg-decor {
+    position: fixed;
+    z-index: 0;
+    border-radius: 50%;
+    opacity: 0.6;
+  }
+
+  /* Top Left Cluster */
+  .decor-1 {
+    width: 250px;
+    height: 250px;
+    background: var(--circle-dark);
+    top: -100px;
+    left: -80px;
+  }
+
+  .decor-2 {
+    width: 200px;
+    height: 200px;
+    background: var(--accent-green);
+    top: -50px;
+    left: 50px;
+  }
+
+  .decor-3 {
+    width: 150px;
+    height: 150px;
+    background: var(--circle-blue);
+    top: 80px;
+    left: -60px;
+  }
+
+  /* Bottom Right Cluster */
+  .decor-4 {
+    width: 350px;
+    height: 350px;
+    background: var(--accent-green);
+    bottom: -150px;
+    right: -100px;
+  }
+
+  .decor-5 {
+    width: 150px;
+    height: 150px;
+    background: var(--circle-tan);
+    bottom: -50px;
+    right: -150px;
+  }
+
+  .decor-6 {
+    width: 250px;
+    height: 250px;
+    background: var(--circle-blue);
+    bottom: -180px;
+    right: 20px;
+  }
+
+    .screen {
+      display: none;
+      height: 100vh;
+      width: 100%;
+      position: relative;
+      z-index: 10;
+      padding: 20px;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity var(--transition-speed) ease, transform var(--transition-speed) ease;
+    }
+
+    .screen.active {
+      display: flex;
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* --- Splash Screen Styles --- */
+    .logo-wrapper {
+      width: 260px;
+      height: 260px;
+      margin-bottom: 35px;
+      /* background-color: var(--accent-green); */
+      clip-path: polygon(50% 0%, 100% 15%, 100% 75%, 50% 100%, 0% 75%, 0% 15%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+    }
+
+    .logo-image {
+      width: 85%;
+      height: 85%;
+      object-fit: contain;
+    }
+
+    .check-icon {
+      position: absolute;
+      top: 15%;
+      right: 15%;
+      color: #43633e;
+      font-size: 2.5rem;
+      z-index: 2;
+    }
+
+    .brand-name {
+      color: var(--dark-blue);
+      font-weight: 700;
+      font-size: 1.8rem;
+      margin-bottom: 8px;
+      letter-spacing: -0.5px;
+    }
+
+    .tagline {
+      color: var(--dark-blue);
+      font-size: 1.1rem;
+      font-weight: 500;
+      margin-bottom: 50px;
+      opacity: 0.8;
+    }
+
+    .btn-main {
+      background-color: var(--primary-blue);
+      color: var(--dark-blue);
+      border: none;
+      padding: 16px 0;
+      width: 100%;
+      max-width: 380px;
+      border-radius: 20px;
+      font-size: 1.6rem;
+      font-weight: 600;
+      box-shadow: 0 6px 20px rgba(185, 209, 226, 0.4);
+      transition: all 0.2s ease;
+    }
+
+    .btn-main:active {
+      transform: scale(0.97);
+      box-shadow: 0 2px 10px rgba(185, 209, 226, 0.3);
+    }
+
+    /* --- Form Screens Styles (Sign Up & Login) --- */
+    .top-nav {
+      position: absolute;
+      top: 25px;
+      width: 100%;
+      padding: 0 30px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 1.6rem;
+      color: var(--dark-blue);
+    }
+
+    .top-nav i {
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .top-nav i:hover {
+      opacity: 0.6;
+    }
+
+    .page-title {
+      color: var(--dark-blue);
+      font-size: 2.4rem;
+      font-weight: 600;
+      margin-bottom: 45px;
+      letter-spacing: -1px;
+    }
+
+    .form-container {
+      width: 100%;
+      max-width: 380px;
+    }
+
+    .custom-input-group {
+      margin-bottom: 18px;
+      position: relative;
+    }
+
+    .custom-input {
+      width: 100%;
+      padding: 16px 25px;
+      border-radius: 30px;
+      border: 2px solid transparent;
+      background: white;
+      font-size: 1.1rem;
+      color: #333;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+      transition: border-color 0.3s ease;
+    }
+
+    .custom-input:focus {
+      outline: none;
+      border-color: var(--primary-blue);
+    }
+
+    .custom-input::placeholder {
+      color: #b0c4de;
+    }
+
+    .input-icon-end {
+      position: absolute;
+      right: 25px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #888;
+      cursor: pointer;
+      font-size: 1.2rem;
+      z-index: 5;
+    }
+
+    .link-text {
+      color: #555;
+      margin-top: 25px;
+      font-size: 1rem;
+    }
+
+    .action-link {
+      text-decoration: underline;
+      color: #000;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .social-container {
+      margin-top: 50px;
+      display: flex;
+      gap: 35px;
+      justify-content: center;
+    }
+
+    .social-icon {
+      font-size: 2.2rem;
+      color: var(--dark-blue);
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    .social-icon:hover {
+      transform: translateY(-5px);
+    }
+
+    /* Bottom pixels graphic */
+    .bottom-accent {
+      position: fixed;
+      bottom: 0;
+      right: 0;
+      width: 180px;
+      height: 120px;
+      background: linear-gradient(135deg, transparent 60%, #c9d8bd 60%);
+      opacity: 0.4;
+      z-index: 1;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Background Elements -->
+  <div class="bg-decor decor-1"></div>
+  <div class="bg-decor decor-2"></div>
+  <div class="bg-decor decor-3"></div>
+  <div class="bg-decor decor-4"></div>
+  <div class="bg-decor decor-5"></div>
+  <div class="bg-decor decor-6"></div>
+  <div class="bottom-accent"></div>
+
+  <!-- Splash Screen -->
+  <div id="splashScreen" class="screen active">
+    <div class="logo-wrapper">
+      <img src="start.png" alt="FamShop Logo" class="logo-image" onerror="this.style.display='none'">
+    </div>
+    <h1 class="brand-name">FamShop Assistant</h1>
+    <p class="tagline">Shop Smart, Live Healthy</p>
+    <button class="btn btn-main" onclick="navigateTo('signUpScreen')">Get Started</button>
+  </div>
+
+  <!-- Create Account Screen -->
+  <div id="signUpScreen" class="screen">
+    <div class="top-nav">
+      <i class="bi bi-list" onclick="navigateTo('splashScreen')"></i>
+      <i class="bi bi-house-door" onclick="navigateTo('splashScreen')"></i>
+      <i class="bi bi-reply-fill" onclick="navigateTo('splashScreen')"></i>
+    </div>
+
+    <h2 class="page-title">Create Account</h2>
+
+    <div class="form-container">
+      <div class="custom-input-group">
+        <input type="text" class="custom-input" placeholder="Name..">
+      </div>
+      <div class="custom-input-group">
+        <input type="password" class="custom-input password-input" placeholder="Password..">
+        <i class="bi bi-eye-slash input-icon-end toggle-password"></i>
+      </div>
+      <div class="custom-input-group">
+        <input type="email" class="custom-input" placeholder="Email..">
+      </div>
+
+      <button class="btn btn-main mt-4">Sign Up</button>
+
+      <p class="text-center link-text">
+        Already have an account? <span class="action-link" onclick="navigateTo('loginScreen')">Login</span>
+      </p>
+    </div>
+
+    <div class="social-container">
+      <i class="bi bi-google social-icon"></i>
+      <i class="bi bi-apple social-icon"></i>
+      <i class="bi bi-facebook social-icon"></i>
+    </div>
+  </div>
+
+  <!-- Login Screen -->
+  <div id="loginScreen" class="screen">
+    <div class="top-nav">
+      <i class="bi bi-list" onclick="navigateTo('splashScreen')"></i>
+      <i class="bi bi-house-door" onclick="navigateTo('splashScreen')"></i>
+      <i class="bi bi-reply-fill" onclick="navigateTo('signUpScreen')"></i>
+    </div>
+
+    <h2 class="page-title">Welcome Back</h2>
+
+    <div class="form-container">
+      <div class="custom-input-group">
+        <input type="email" class="custom-input" placeholder="Email..">
+      </div>
+      <div class="custom-input-group">
+        <input type="password" class="custom-input password-input" placeholder="Password..">
+        <i class="bi bi-eye-slash input-icon-end toggle-password"></i>
+      </div>
+
+      <button class="btn btn-main mt-4">Login</button>
+
+      <p class="text-center link-text">
+        Don't have an account? <span class="action-link" onclick="navigateTo('signUpScreen')">Sign Up</span>
+      </p>
+    </div>
+
+    <div class="social-container">
+      <i class="bi bi-google social-icon"></i>
+      <i class="bi bi-apple social-icon"></i>
+      <i class="bi bi-facebook social-icon"></i>
+    </div>
+  </div>
+
+  <script>
+    function navigateTo(screenId) {
+      const screens = document.querySelectorAll('.screen');
+      const target = document.getElementById(screenId);
+
+      screens.forEach(s => {
+        s.classList.remove('active');
+        setTimeout(() => {
+          if (!s.classList.contains('active')) s.style.display = 'none';
+        }, 400);
+      });
+
+      target.style.display = 'flex';
+      setTimeout(() => {
+        target.classList.add('active');
+      }, 10);
+
+      // Shift background slightly for dynamic feel
+      const decors = document.querySelectorAll('.bg-decor');
+      decors.forEach((d, index) => {
+        const move = screenId === 'splashScreen' ? 0 : (index % 2 === 0 ? 20 : -20);
+        d.style.transform = `translate(${move}px, ${move}px)`;
+      });
+    }
+
+    // Password Visibility Toggle
+    document.addEventListener('click', function (e) {
+      if (e.target.classList.contains('toggle-password')) {
+        const icon = e.target;
+        const input = icon.parentElement.querySelector('.password-input');
+
+        if (input.type === 'password') {
+          input.type = 'text';
+          icon.classList.remove('bi-eye-slash');
+          icon.classList.add('bi-eye');
+        } else {
+          input.type = 'password';
+          icon.classList.remove('bi-eye');
+          icon.classList.add('bi-eye-slash');
+        }
+      }
+    });
+  </script>
+</body>
+
+</html>
