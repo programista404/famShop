@@ -4,10 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\ServiceProvider;
-use Illuminate\View\View;
-use Illuminate\Database\Eloquent\Relations\Relation;
-use App\Models\WorkoutPlan;
-use App\Models\NutritionPlan;
+use Illuminate\Support\Facades\View;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -29,5 +26,9 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         Paginator::useBootstrap();
+
+        View::composer('*', function ($view) {
+            $view->with('globalCartCount', famshopCartCount());
+        });
     }
 }

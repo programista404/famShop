@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\ShoppingCart;
 use App\Models\Vendor;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\Auth;
@@ -58,4 +59,27 @@ function hasPermission($permissionName)
         $q->where('vendor_id', $vendor->vendor_id);
     })->latest('order_date')->take(5)->get();
 
+}
+
+function famshopDefaultProductImage(): string
+{
+    return 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=600&q=80';
+}
+
+function famshopProductImage(?string $imageUrl): string
+{
+    return filled($imageUrl) ? $imageUrl : famshopDefaultProductImage();
+}
+
+function famshopCartCount(): int
+{
+    if (! Auth::check()) {
+        return 0;
+    }
+
+    return (int) ShoppingCart::query()
+        ->where('user_id', Auth::id())
+        ->whereNull('purchase_date')
+        ->withSum('items', 'quantity')
+        ->value('items_sum_quantity');
 }

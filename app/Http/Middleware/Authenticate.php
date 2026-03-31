@@ -9,16 +9,17 @@ class Authenticate extends Middleware
 {
     public function handle($request, Closure $next, ...$guards)
     {
-       if (auth()->check()) {
+        if (auth()->check()) {
+            return $next($request);
+        }
 
-           return $next($request);
-       }
-        return  redirect()->route('login');
+        return redirect()->route('login');
     }
+
     protected function redirectTo($request)
     {
         if (! $request->expectsJson()) {
-            return  redirect()->route('login');
+            return route('login');
         }
     }
 }
