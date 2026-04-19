@@ -3,9 +3,11 @@
 use App\Models\ShoppingCart;
 use App\Models\Vendor;
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use App\Models\Order;
+use Illuminate\Support\Str;
 function isNavbarActive(string $url): string
 {
     return Request()->is($url) ? 'active' : '';
@@ -69,6 +71,44 @@ function famshopDefaultProductImage(): string
 function famshopProductImage(?string $imageUrl): string
 {
     return filled($imageUrl) ? $imageUrl : famshopDefaultProductImage();
+}
+
+function famshopUserPhoto(?string $photoPath): string
+{
+    if (! filled($photoPath)) {
+        return '';
+    }
+
+    if (str_starts_with($photoPath, 'http://') || str_starts_with($photoPath, 'https://')) {
+        return $photoPath;
+    }
+
+    $cleanPath = ltrim($photoPath, '/');
+
+    if (file_exists(public_path($cleanPath))) {
+        return asset($cleanPath);
+    }
+
+    if (file_exists(public_path('storage/' . $cleanPath))) {
+        return asset('storage/' . $cleanPath);
+    }
+
+    return asset($cleanPath);
+}
+
+function famshopStorePublicUpload($file, string $folder): string
+{
+    $folder = trim($folder, '/');
+    $targetDir = public_path($folder);
+
+    if (! File::exists($targetDir)) {
+        File::makeDirectory($targetDir, 0755, true);
+    }
+
+    $filename = now()->format('YmdHis') . '-' . Str::uuid() . '.' . $file->getClientOriginalExtension();
+    $file->move($targetDir, $filename);
+
+    return $folder . '/' . $filename;
 }
 
 function famshopCartCount(): int

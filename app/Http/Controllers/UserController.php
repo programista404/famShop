@@ -34,7 +34,7 @@ class UserController extends Controller
         $user = auth()->user();
 
         if ($request->hasFile('photo')) {
-            $validated['profile_photo'] = $request->file('photo')->store('avatars', 'public');
+            $validated['profile_photo'] = famshopStorePublicUpload($request->file('photo'), 'uploads/avatars');
         }
 
         unset($validated['photo']);

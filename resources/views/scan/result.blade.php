@@ -95,12 +95,14 @@
             <div class="similar-products-scroll">
                 @forelse ($similarProducts as $similarProduct)
                     <div class="similar-product-card">
-                        <div class="similar-product-image-wrap">
-                            <img src="{{ famshopProductImage($similarProduct->image_url) }}" alt="{{ $similarProduct->pr_name }}" class="similar-product-image">
-                        </div>
-                        <h6>{{ $similarProduct->pr_name }}</h6>
-                        <p>{{ $similarProduct->brand ?: 'Product' }}</p>
-                        <strong>{{ number_format((float) $similarProduct->price, 2) }} SAR</strong>
+                        <a href="/products/{{ $similarProduct->id }}" class="similar-product-link text-decoration-none">
+                            <div class="similar-product-image-wrap">
+                                <img src="{{ famshopProductImage($similarProduct->image_url) }}" alt="{{ $similarProduct->pr_name }}" class="similar-product-image">
+                            </div>
+                            <h6>{{ $similarProduct->pr_name }}</h6>
+                            <p>{{ $similarProduct->brand ?: 'Product' }}</p>
+                            <strong>{{ number_format((float) $similarProduct->price, 2) }} SAR</strong>
+                        </a>
                         <form method="POST" action="/cart" class="mt-2">
                             @csrf
                             <input type="hidden" name="product_id" value="{{ $similarProduct->id }}">

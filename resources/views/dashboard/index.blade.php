@@ -2,6 +2,9 @@
 
 @section('content')
     @php
+        $selfMember = $members->first(function ($member) {
+            return strcasecmp($member->name_member, auth()->user()->name) === 0;
+        });
         $budget = $activeMember?->budget;
         $dailyLeft = $budget ? ($budget->daily_budget ?? 0) - ($budget->daily_spent ?? 0) : null;
         $weeklyLeft = $budget ? ($budget->weekly_budget ?? 0) - ($budget->weekly_spent ?? 0) : null;
@@ -21,7 +24,7 @@
         <div class="top-nav">
             <a href="/profile" class="profile-chip text-decoration-none">
                 @if (auth()->user()->profile_photo)
-                    <img src="{{ auth()->user()->profile_photo }}" alt="{{ auth()->user()->name }}">
+                    <img src="{{ famshopUserPhoto(auth()->user()->profile_photo) }}" alt="{{ auth()->user()->name }}">
                 @else
                     <span class="avatar-circle d-flex align-items-center justify-content-center"><i class="bi bi-person-fill"></i></span>
                 @endif
@@ -99,20 +102,55 @@
                     <a href="/family" class="see-all">Family</a>
                 </div>
 
+                <div class="home-self-shop-card mb-3">
+                    <div class="home-self-shop-icon">
+                        <i class="bi bi-person-check-fill"></i>
+                    </div>
+                    <div class="home-self-shop-copy">
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <span class="home-self-shop-kicker">Shop for myself</span>
+                            @if ($selfMember)
+                                <span class="home-self-shop-chip">Ready</span>
+                            @endif
+                        </div>
+                        <p class="mb-0">
+                            {{ $selfMember ? 'Use your own family profile while shopping and scanning products.' : 'Create a family profile with your name first, then shop under it.' }}
+                        </p>
+                    </div>
+                    <div class="home-self-shop-action">
+                        @if ($selfMember)
+                            <form method="POST" action="/scan/member" class="m-0">
+                                @csrf
+                                <input type="hidden" name="member_id" value="{{ $selfMember->id }}">
+                                <button class="btn btn-main home-self-shop-btn" type="submit">
+                                    <i class="bi bi-person-badge"></i>
+                                    <span>Use my profile</span>
+                                </button>
+                            </form>
+                        @else
+                            <a href="/family" class="btn btn-soft-neutral home-self-shop-btn text-decoration-none">
+                                <i class="bi bi-plus-lg"></i>
+                                <span>Create profile</span>
+                            </a>
+                        @endif
+                    </div>
+                </div>
+
                 <form method="POST" action="/scan/member">
                     @csrf
                     <div class="custom-input-group mb-3">
                         <select class="custom-select" name="member_id">
                             @forelse ($members as $member)
-                                <option value="{{ $member->id }}" {{ $activeMember && $activeMember->id === $member->id ? 'selected' : '' }}>{{ $member->name_member }}</option>
+                                <option value="{{ $member->id }}" {{ $activeMember && $activeMember->id === $member->id ? 'selected' : '' }}>
+                                    {{ $selfMember && $selfMember->id === $member->id ? 'My profile - ' . $member->name_member : $member->name_member }}
+                                </option>
                             @empty
                                 <option value="">No family members available</option>
                             @endforelse
                         </select>
                     </div>
                     <div class="home-inline-actions">
-                        <button style="    width: 41%;" class="btn btn-main" type="submit" {{ $members->isEmpty() ? 'disabled' : '' }}>Save</button>
-                        <a href="/explore" class="btn btn-soft-neutral text-decoration-none">Explore Products</a>
+                        <button class="btn btn-main home-member-save-btn" type="submit" {{ $members->isEmpty() ? 'disabled' : '' }}>Save</button>
                     </div>
                 </form>
             </section>

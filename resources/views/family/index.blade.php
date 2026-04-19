@@ -26,7 +26,7 @@
                         <div class="family-profile-top mb-0">
                             <div class="family-avatar-wrap">
                                 @if ($member->avatar)
-                                    <img src="{{ asset('storage/' . $member->avatar) }}" alt="{{ $member->name_member }}" class="family-avatar">
+                                    <img src="{{ famshopUserPhoto($member->avatar) }}" alt="{{ $member->name_member }}" class="family-avatar">
                                 @else
                                     <div class="family-avatar family-avatar-fallback">
                                         <i class="bi bi-person-fill"></i>
@@ -124,7 +124,7 @@
                 <div class="family-modal-handle"></div>
                 <div class="text-center mb-4">
                     @if ($member->avatar)
-                        <img src="{{ asset('storage/' . $member->avatar) }}" alt="{{ $member->name_member }}" class="family-view-avatar">
+                        <img src="{{ famshopUserPhoto($member->avatar) }}" alt="{{ $member->name_member }}" class="family-view-avatar">
                     @else
                         <div class="family-view-avatar family-avatar-fallback mx-auto">
                             <i class="bi bi-person-fill"></i>

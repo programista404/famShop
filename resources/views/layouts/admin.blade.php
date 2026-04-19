@@ -64,7 +64,7 @@
                     <div class="dropdown">
                         <button class="admin-profile-btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                             @if (auth()->user()->profile_photo)
-                                <img src="{{ auth()->user()->profile_photo }}" alt="{{ auth()->user()->name }}">
+                                <img src="{{ famshopUserPhoto(auth()->user()->profile_photo) }}" alt="{{ auth()->user()->name }}">
                             @else
                                 <span class="admin-profile-fallback"><i class="bi bi-person-fill"></i></span>
                             @endif

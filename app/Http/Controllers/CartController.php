@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\CartItem;
+use App\Services\AllergyChecker;
 use App\Models\Product;
 use App\Models\ShoppingCart;
 use Illuminate\Http\Request;
@@ -12,13 +13,53 @@ class CartController extends Controller
     public function index()
     {
         $cart = ShoppingCart::with('items.product')
-            ->with('member.budget')
+            ->with('member.budget', 'member.allergyProfiles')
             ->where('user_id', auth()->id())
             ->whereNull('purchase_date')
             ->first();
 
+        $itemChecks = [];
+        $unsafeCount = 0;
+        $safeCount = 0;
+
+        if ($cart?->member && $cart->items) {
+            $checker = new AllergyChecker();
+
+            foreach ($cart->items as $item) {
+                if (! $item->product) {
+                    continue;
+                }
+
+                $allergyResult = $checker->check($item->product, $cart->member);
+                $budgetResult = app(BudgetController::class)->checkBudget((float) $item->product->price, $cart->member->budget);
+                $safe = $allergyResult['safe'] && $budgetResult['within_budget'];
+                $reasons = [];
+
+                if (! $allergyResult['safe']) {
+                    $reasons[] = 'Contains ' . implode(', ', $allergyResult['triggered_allergens']);
+                }
+
+                if (! $budgetResult['within_budget']) {
+                    $reasons[] = 'Exceeds ' . $budgetResult['exceeded_period'];
+                }
+
+                $itemChecks[$item->id] = [
+                    'safe' => $safe,
+                    'status' => $safe ? 'Safe' : 'Warning',
+                    'message' => $safe
+                        ? 'Safe for ' . $cart->member->name_member
+                        : implode(' • ', $reasons),
+                ];
+
+                $safe ? $safeCount++ : $unsafeCount++;
+            }
+        }
+
         return view('cart.index', [
             'cart' => $cart,
+            'itemChecks' => $itemChecks,
+            'safeCount' => $safeCount,
+            'unsafeCount' => $unsafeCount,
         ]);
     }
 
@@ -104,11 +145,6 @@ class CartController extends Controller
 
     public function checkout(Request $request)
     {
-        ShoppingCart::query()
-            ->where('user_id', auth()->id())
-            ->whereNull('purchase_date')
-            ->firstOrFail();
-
         return redirect('/cart/payment');
     }
 

@@ -12,6 +12,41 @@
                 <div class="d-flex justify-content-between"><span>Cart Status</span><span class="fw-bold">{{ $cart ? 'Active' : 'Empty' }}</span></div>
             </div>
 
+            @if ($cart?->member)
+                <div class="cart-safety-overview {{ ($unsafeCount ?? 0) > 0 ? 'is-alert' : 'is-safe' }}">
+                    <div class="cart-safety-overview-icon">
+                        <i class="bi {{ ($unsafeCount ?? 0) > 0 ? 'bi-exclamation-triangle-fill' : 'bi-shield-check' }}"></i>
+                    </div>
+                    <div class="cart-safety-overview-copy">
+                        <div class="cart-safety-overview-head">
+                            <span class="cart-safety-overview-kicker">Safety overview</span>
+                            <span class="cart-safety-overview-chip {{ ($unsafeCount ?? 0) > 0 ? 'is-alert' : 'is-safe' }}">
+                                {{ ($unsafeCount ?? 0) > 0 ? 'Needs review' : 'All clear' }}
+                            </span>
+                        </div>
+                        <h5>{{ $unsafeCount > 0 ? 'Some items need attention' : 'All items are safe for ' . $cart->member->name_member }}</h5>
+                        <p>
+                            @if (($unsafeCount ?? 0) > 0)
+                                {{ $unsafeCount }} item(s) may not suit {{ $cart->member->name_member }}.
+                                The card below shows the reason for each product.
+                            @else
+                                Safe for {{ $cart->member->name_member }}. No allergy or budget issues were detected.
+                            @endif
+                        </p>
+                    </div>
+                    <div class="cart-safety-overview-stats">
+                        <div>
+                            <span>Safe</span>
+                            <strong>{{ $safeCount ?? 0 }}</strong>
+                        </div>
+                        <div>
+                            <span>Review</span>
+                            <strong>{{ $unsafeCount ?? 0 }}</strong>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             @if ($cart?->member?->budget)
                 @php
                     $budget = $cart->member->budget;
@@ -49,11 +84,25 @@
 
             <div class="stack-list">
                 @forelse (($cart->items ?? collect()) as $item)
-                    <div class="cart-item">
+                    @php $check = $itemChecks[$item->id] ?? null; @endphp
+                    <div class="cart-item cart-item-safety {{ $check && ! $check['safe'] ? 'is-alert' : 'is-safe' }}">
                         <div class="item-main">
-                            <div class="item-title">{{ $item->product->pr_name }}</div>
-                            <div class="muted-note">{{ number_format($item->total_price, 2) }} SAR • Qty {{ $item->quantity }}</div>
+                            <div class="cart-item-head">
+                                <div>
+                                    <div class="item-title">{{ $item->product->pr_name }}</div>
+                                    <div class="muted-note">{{ number_format($item->total_price, 2) }} SAR &bull; Qty {{ $item->quantity }}</div>
+                                </div>
+                                @if ($check)
+                                    <span class="history-status-badge {{ $check['safe'] ? 'is-safe' : 'is-alert' }}">
+                                        {{ $check['status'] }}
+                                    </span>
+                                @endif
+                            </div>
+
                         </div>
+
+
+
                         <div class="inline-actions">
                             <form method="POST" action="/cart/{{ $item->id }}">
                                 @csrf
@@ -67,6 +116,12 @@
                                 <button class="mini-btn danger" type="submit">Remove</button>
                             </form>
                         </div>
+
+                        @if ($check)
+                            <div class="cart-safety-box {{ $check['safe'] ? 'is-safe' : 'is-alert' }}">
+                                <p>{{ $check['message'] }}</p>
+                            </div>
+                        @endif
                     </div>
                 @empty
                     <div class="cart-item">

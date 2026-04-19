@@ -42,7 +42,7 @@ class FamilyMemberController extends Controller
             'age' => $validated['age'] ?? null,
             'gender' => $validated['gender'] ?? null,
             'avatar' => $request->hasFile('avatar')
-                ? $request->file('avatar')->store('avatars', 'public')
+                ? famshopStorePublicUpload($request->file('avatar'), 'uploads/avatars')
                 : null,
         ]);
 
@@ -77,7 +77,7 @@ class FamilyMemberController extends Controller
             'age' => $validated['age'] ?? null,
             'gender' => $validated['gender'] ?? null,
             'avatar' => $request->hasFile('avatar')
-                ? $request->file('avatar')->store('avatars', 'public')
+                ? famshopStorePublicUpload($request->file('avatar'), 'uploads/avatars')
                 : $member->avatar,
         ]);
 

@@ -13,7 +13,7 @@
         <div class="content-block">
             <div class="hero-panel text-center mb-3">
                 @if ($user->profile_photo)
-                    <img src="{{ $user->profile_photo }}" alt="{{ $user->name }}" class="avatar-circle" style="width:110px;height:110px;">
+                    <img src="{{ famshopUserPhoto($user->profile_photo) }}" alt="{{ $user->name }}" class="avatar-circle" style="width:110px;height:110px;">
                 @else
                     <div class="avatar-circle mx-auto d-flex align-items-center justify-content-center" style="width:110px;height:110px;">
                         <i class="bi bi-person-fill" style="font-size:2rem;"></i>
