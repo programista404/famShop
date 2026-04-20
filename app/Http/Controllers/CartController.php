@@ -12,9 +12,24 @@ class CartController extends Controller
 {
     public function index()
     {
+        $activeMemberId = session('active_member_id');
+        
+        // If no active member selected, show empty cart
+        if (!$activeMemberId) {
+            return view('cart.index', [
+                'cart' => null,
+                'itemChecks' => [],
+                'safeCount' => 0,
+                'unsafeCount' => 0,
+                'noMemberSelected' => true,
+            ]);
+        }
+        
+        // Load cart for the specific active member
         $cart = ShoppingCart::with('items.product')
             ->with('member.budget', 'member.allergyProfiles')
             ->where('user_id', auth()->id())
+            ->where('member_id', $activeMemberId)
             ->whereNull('purchase_date')
             ->first();
 
@@ -71,17 +86,18 @@ class CartController extends Controller
         ]);
 
         $memberId = session('active_member_id');
+        if (!$memberId) {
+            return back()->with('error', 'Please select a family member first.');
+        }
+        
         $product = Product::findOrFail($validated['product_id']);
         $qty = $validated['quantity'] ?? 1;
 
+        // Find or create cart for the specific member
         $cart = ShoppingCart::firstOrCreate(
-            ['user_id' => auth()->id(), 'purchase_date' => null],
-            ['member_id' => $memberId, 'total_cost' => 0]
+            ['user_id' => auth()->id(), 'member_id' => $memberId, 'purchase_date' => null],
+            ['total_cost' => 0]
         );
-
-        if ($memberId && ! $cart->member_id) {
-            $cart->update(['member_id' => $memberId]);
-        }
 
         $item = $cart->items()->where('product_id', $product->id)->first();
         if ($item) {
@@ -102,7 +118,12 @@ class CartController extends Controller
             'total_cost' => $cart->items()->sum('total_price'),
         ]);
 
-        return back()->with('success', 'Product added to cart.');
+        $redirectTo = $request->input('redirect_to', '/cart');
+        if (! is_string($redirectTo) || ! str_starts_with($redirectTo, '/')) {
+            $redirectTo = '/cart';
+        }
+
+        return redirect($redirectTo)->with('success', 'Product added to cart.');
     }
 
     public function updateQty(Request $request, $id)
@@ -150,9 +171,17 @@ class CartController extends Controller
 
     public function payment()
     {
+        $activeMemberId = session('active_member_id');
+        
+        if (!$activeMemberId) {
+            return back()->with('error', 'Please select a family member first.');
+        }
+        
+        // Load cart for the specific active member
         $cart = ShoppingCart::with('items.product')
             ->with('member')
             ->where('user_id', auth()->id())
+            ->where('member_id', $activeMemberId)
             ->whereNull('purchase_date')
             ->firstOrFail();
 
@@ -164,8 +193,16 @@ class CartController extends Controller
 
     public function paymentDone()
     {
+        $activeMemberId = session('active_member_id');
+        
+        if (!$activeMemberId) {
+            return back()->with('error', 'Please select a family member first.');
+        }
+        
+        // Get cart for the specific active member
         $cart = ShoppingCart::query()
             ->where('user_id', auth()->id())
+            ->where('member_id', $activeMemberId)
             ->whereNull('purchase_date')
             ->firstOrFail();
 
@@ -175,5 +212,29 @@ class CartController extends Controller
         ]);
 
         return redirect('/dashboard')->with('success', 'Demo checkout completed. Your cart was cleared.');
+    }
+
+    public function clearCart()
+    {
+        $activeMemberId = session('active_member_id');
+        
+        if (!$activeMemberId) {
+            return back()->with('error', 'Please select a family member first.');
+        }
+        
+        // Get cart for the specific active member
+        $cart = ShoppingCart::where('user_id', auth()->id())
+            ->where('member_id', $activeMemberId)
+            ->whereNull('purchase_date')
+            ->first();
+
+        if ($cart) {
+            $cart->items()->delete();
+            $cart->update(['total_cost' => 0]);
+            
+            return back()->with('success', 'Cart cleared successfully.');
+        }
+
+        return back()->with('info', 'Cart is already empty.');
     }
 }

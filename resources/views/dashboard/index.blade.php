@@ -117,18 +117,18 @@
                             {{ $selfMember ? 'Use your own family profile while shopping and scanning products.' : 'Create a family profile with your name first, then shop under it.' }}
                         </p>
                     </div>
-                    <div class="home-self-shop-action">
+                    <div style="display:block;" class="home-self-shop-action">
                         @if ($selfMember)
                             <form method="POST" action="/scan/member" class="m-0">
                                 @csrf
                                 <input type="hidden" name="member_id" value="{{ $selfMember->id }}">
-                                <button class="btn btn-main home-self-shop-btn" type="submit">
+                                <button style="padding:0;font-size:12px;" class="btn btn-main home-self-shop-btn" type="submit">
                                     <i class="bi bi-person-badge"></i>
                                     <span>Use my profile</span>
                                 </button>
                             </form>
                         @else
-                            <a href="/family" class="btn btn-soft-neutral home-self-shop-btn text-decoration-none">
+                            <a href="/family"  style="padding:0;font-size:12px;" class="btn btn-soft-neutral home-self-shop-btn text-decoration-none">
                                 <i class="bi bi-plus-lg"></i>
                                 <span>Create profile</span>
                             </a>
@@ -136,7 +136,7 @@
                     </div>
                 </div>
 
-                <form method="POST" action="/scan/member">
+                <form style="display:block;" method="POST" action="/scan/member">
                     @csrf
                     <div class="custom-input-group mb-3">
                         <select class="custom-select" name="member_id">
@@ -150,7 +150,7 @@
                         </select>
                     </div>
                     <div class="home-inline-actions">
-                        <button class="btn btn-main home-member-save-btn" type="submit" {{ $members->isEmpty() ? 'disabled' : '' }}>Save</button>
+                        <button  style="padding:0;font-size:12px;width:100%;" class="btn btn-main home-member-save-btn" type="submit" {{ $members->isEmpty() ? 'disabled' : '' }}>Save</button>
                     </div>
                 </form>
             </section>

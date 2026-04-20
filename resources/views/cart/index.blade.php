@@ -4,7 +4,22 @@
     <div class="screen-shell screen-top">
         <div class="top-nav">
             <a href="/dashboard" class="text-decoration-none text-reset"><i class="bi bi-reply-fill"></i></a>
-            <i class="bi bi-trash3 text-danger"></i>
+            @if ($cart?->member)
+                <span class="badge bg-primary" style="font-size: 11px; padding: 4px 8px;">{{ $cart->member->name_member }}</span>
+            @endif
+            @if ($cart?->items->isNotEmpty())
+                <form method="POST" action="/cart/clear" style="display: inline; margin: 0;">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-link text-danger p-0 border-0" 
+                        onclick="return confirm('Are you sure you want to clear the entire cart? This action cannot be undone.')"
+                        style="background: none; cursor: pointer;">
+                        <i class="bi bi-trash3 text-danger" style="font-size: 18px;"></i>
+                    </button>
+                </form>
+            @else
+                <i class="bi bi-trash3 text-muted" style="opacity: 0.5;"></i>
+            @endif
         </div>
         <div class="content-block">
             <div class="budget-card mb-3" style="background:#1d3557;color:white;">
@@ -12,7 +27,14 @@
                 <div class="d-flex justify-content-between"><span>Cart Status</span><span class="fw-bold">{{ $cart ? 'Active' : 'Empty' }}</span></div>
             </div>
 
-            @if ($cart?->member)
+            @if ($noMemberSelected ?? false)
+                <div class="alert alert-info alert-dismissible fade show" role="alert" style="background: #e3f2fd; border: 1px solid #90caf9; color: #0d47a1;">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <strong>Please select a family member</strong>
+                    <p class="mb-0 mt-2">Go to <a href="/dashboard" class="text-decoration-none fw-bold">Dashboard</a> to select a family member before shopping.</p>
+                </div>
+            @else
+                @if ($cart?->member)
                 <div class="cart-safety-overview {{ ($unsafeCount ?? 0) > 0 ? 'is-alert' : 'is-safe' }}">
                     <div class="cart-safety-overview-icon">
                         <i class="bi {{ ($unsafeCount ?? 0) > 0 ? 'bi-exclamation-triangle-fill' : 'bi-shield-check' }}"></i>
@@ -80,6 +102,8 @@
                         </div>
                     </div>
                 </div>
+            @endif
+
             @endif
 
             <div class="stack-list">

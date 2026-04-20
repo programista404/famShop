@@ -28,6 +28,7 @@ class ScanController extends Controller
             'members' => $members,
             'activeMember' => $activeMember,
             'history' => $history,
+            'globalCartCount' => famshopCartCount(),
         ]);
     }
 

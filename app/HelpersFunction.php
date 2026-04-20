@@ -1,6 +1,5 @@
 <?php
 
-use App\Models\ShoppingCart;
 use App\Models\Vendor;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\File;
@@ -117,9 +116,17 @@ function famshopCartCount(): int
         return 0;
     }
 
-    return (int) ShoppingCart::query()
-        ->where('user_id', Auth::id())
-        ->whereNull('purchase_date')
-        ->withSum('items', 'quantity')
-        ->value('items_sum_quantity');
+    $activeMemberId = session('active_member_id');
+
+    if (! $activeMemberId) {
+        return 0;
+    }
+
+    return (int) \App\Models\CartItem::query()
+        ->whereHas('cart', function ($query) use ($activeMemberId) {
+            $query->where('user_id', Auth::id())
+                ->where('member_id', $activeMemberId)
+                ->whereNull('purchase_date');
+        })
+        ->sum('quantity');
 }

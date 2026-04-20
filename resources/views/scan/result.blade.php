@@ -48,6 +48,18 @@
                 </span>
             </div>
 
+            <div class="mt-3">
+                <form method="POST" action="/cart" class="m-0">
+                    @csrf
+                    <input type="hidden" name="product_id" value="{{ $product->id }}">
+                    <input type="hidden" name="redirect_to" value="/cart">
+                    <button class="btn btn-main w-100" type="submit">
+                        <i class="bi bi-cart-plus me-2"></i>
+                        Add to Cart
+                    </button>
+                </form>
+            </div>
+
             <div class="info-grid">
                 <div class="info-tile warning">
                     <label>Safety Alert</label>
@@ -76,6 +88,7 @@
                         <form method="POST" action="/cart">
                             @csrf
                             <input type="hidden" name="product_id" value="{{ $alternative->id }}">
+                            <input type="hidden" name="redirect_to" value="/cart">
                             <button class="alt-check border-0" type="submit"><i class="bi bi-plus"></i></button>
                         </form>
                     </div>
@@ -106,6 +119,7 @@
                         <form method="POST" action="/cart" class="mt-2">
                             @csrf
                             <input type="hidden" name="product_id" value="{{ $similarProduct->id }}">
+                            <input type="hidden" name="redirect_to" value="/cart">
                             <button class="mini-btn success w-100" type="submit">Add to Cart</button>
                         </form>
                     </div>
