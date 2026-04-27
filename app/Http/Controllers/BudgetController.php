@@ -8,6 +8,31 @@ use Illuminate\Http\Request;
 
 class BudgetController extends Controller
 {
+    public function refreshSpentPeriods(Budget $budget): Budget
+    {
+        $now = now();
+        $updates = [];
+
+        if (! $budget->updated_at || ! $budget->updated_at->isSameDay($now)) {
+            $updates['daily_spent'] = 0;
+        }
+
+        if (! $budget->updated_at || ! $budget->updated_at->isSameWeek($now)) {
+            $updates['weekly_spent'] = 0;
+        }
+
+        if (! $budget->updated_at || ! $budget->updated_at->isSameMonth($now)) {
+            $updates['monthly_spent'] = 0;
+        }
+
+        if ($updates !== []) {
+            $budget->update($updates);
+            $budget->refresh();
+        }
+
+        return $budget;
+    }
+
     public function edit($memberId)
     {
         $member = FamilyMember::with('budget')
@@ -42,6 +67,8 @@ class BudgetController extends Controller
         if (! $budget || ! $price) {
             return ['within_budget' => true, 'exceeded_period' => null];
         }
+
+        $budget = $this->refreshSpentPeriods($budget);
 
         $dailyRemaining = $budget->daily_budget - $budget->daily_spent;
         $weeklyRemaining = $budget->weekly_budget - $budget->weekly_spent;

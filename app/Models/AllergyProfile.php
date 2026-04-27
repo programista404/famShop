@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class AllergyProfile extends Model
 {
     protected $fillable = [
-        'member_id',
+        'member_id',//FK
         'allergy_type',
         'severity_level',
     ];

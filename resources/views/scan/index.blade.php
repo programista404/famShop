@@ -10,7 +10,7 @@
         <div class="content-block">
             <div class="panel-card scan-panel mb-3">
                 <div class="text-center mb-3">
-                    <h2 class="page-title mb-2" style="font-size:1.8rem;">Scan Product</h2>
+                    <h2 class="page-title mb-2" style="font-size:1.8rem;">Scan Your Product</h2>
                     <p class="tagline mb-0">Use the camera or enter a barcode manually.</p>
                 </div>
 

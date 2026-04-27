@@ -7,6 +7,7 @@ use App\Services\AllergyChecker;
 use App\Models\Product;
 use App\Models\ShoppingCart;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class CartController extends Controller
 {
@@ -199,19 +200,40 @@ class CartController extends Controller
             return back()->with('error', 'Please select a family member first.');
         }
         
-        // Get cart for the specific active member
-        $cart = ShoppingCart::query()
-            ->where('user_id', auth()->id())
-            ->where('member_id', $activeMemberId)
-            ->whereNull('purchase_date')
-            ->firstOrFail();
+        DB::transaction(function () use ($activeMemberId) {
+            $cart = ShoppingCart::with('member.budget', 'items')
+                ->where('user_id', auth()->id())
+                ->where('member_id', $activeMemberId)
+                ->whereNull('purchase_date')
+                ->lockForUpdate()
+                ->firstOrFail();
 
-        $cart->items()->delete();
-        $cart->update([
-            'total_cost' => 0,
-        ]);
+            $orderTotal = (float) $cart->items->sum('total_price');
+            $budget = $cart->member?->budget;
 
-        return redirect('/dashboard')->with('success', 'Demo checkout completed. Your cart was cleared.');
+            if ($budget && $orderTotal > 0) {
+                $budget = app(BudgetController::class)->refreshSpentPeriods($budget);
+
+                $budget->update([
+                    'daily_spent' => (float) $budget->daily_spent + $orderTotal,
+                    'weekly_spent' => (float) $budget->weekly_spent + $orderTotal,
+                    'monthly_spent' => (float) $budget->monthly_spent + $orderTotal,
+                ]);
+            }
+
+            $purchasedAt = now();
+
+            $cart->items()->update([
+                'purchase_date' => $purchasedAt,
+            ]);
+
+            $cart->update([
+                'purchase_date' => $purchasedAt,
+                'total_cost' => $orderTotal,
+            ]);
+        });
+
+        return redirect('/dashboard')->with('success', 'Checkout completed and budget updated.');
     }
 
     public function clearCart()
