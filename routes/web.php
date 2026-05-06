@@ -43,6 +43,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/family/{id}', [FamilyMemberController::class, 'destroy']);
 
     Route::post('/scan/member', [ScanController::class, 'selectMember']);
+    Route::post('/scan/member/self', [ScanController::class, 'selectSelfMember']);
     Route::get('/scan', [ScanController::class, 'index']);
     Route::post('/scan/barcode', [ScanController::class, 'scan']);
     Route::get('/scan/history', [ScanController::class, 'history']);

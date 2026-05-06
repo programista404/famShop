@@ -45,6 +45,30 @@ class ScanController extends Controller
         return back()->with('success', 'Active family member updated.');
     }
 
+    public function selectSelfMember()
+    {
+        $user = auth()->user();
+
+        $selfMember = $user->familyMembers()
+            ->get()
+            ->first(function ($member) use ($user) {
+                return strcasecmp(trim((string) $member->name_member), trim((string) $user->name)) === 0;
+            });
+
+        if (! $selfMember) {
+            $selfMember = $user->familyMembers()->create([
+                'name_member' => $user->name,
+                'age' => null,
+                'gender' => null,
+                'avatar' => null,
+            ]);
+        }
+
+        session(['active_member_id' => $selfMember->id]);
+
+        return back()->with('success', 'Your profile is now active for shopping.');
+    }
+
     public function index()
     {
         return view('scan.index', [

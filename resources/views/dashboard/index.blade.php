@@ -72,27 +72,24 @@
                 </div>
 
                 <div class="home-meta-row">
-                    <div class="home-meta-box">
+                    <a href="/family" class="home-meta-box text-decoration-none text-reset">
                         <div class="home-meta-icon family">
                             <i class="bi bi-people-fill"></i>
                         </div>
                         <span>Family : <strong>{{ $members->count() }}</strong></span>
-
-                    </div>
-                    <div class="home-meta-box">
+                    </a>
+                    <a href="/cart" class="home-meta-box text-decoration-none text-reset">
                         <div class="home-meta-icon cart">
                             <i class="bi bi-basket2-fill"></i>
                         </div>
                         <span>Cart :    <strong>{{ $globalCartCount ?? 0 }}</strong></span>
-
-                    </div>
-                    <div class="home-meta-box">
+                    </a>
+                    <a href="/scan/history" class="home-meta-box text-decoration-none text-reset">
                         <div class="home-meta-icon scan">
                             <i class="bi bi-upc-scan"></i>
                         </div>
                         <span>Scans :     <strong>{{ $history->count() }}</strong> </span>
-
-                    </div>
+                    </a>
                 </div>
             </section>
 
@@ -119,19 +116,21 @@
                     </div>
                     <div style="display:block;" class="home-self-shop-action">
                         @if ($selfMember)
-                            <form method="POST" action="/scan/member" class="m-0">
+                            <form method="POST" action="/scan/member/self" class="m-0">
                                 @csrf
-                                <input type="hidden" name="member_id" value="{{ $selfMember->id }}">
                                 <button style="padding:0;font-size:12px;" class="btn btn-main home-self-shop-btn" type="submit">
                                     <i class="bi bi-person-badge"></i>
                                     <span>Use my profile</span>
                                 </button>
                             </form>
                         @else
-                            <a href="/family"  style="padding:0;font-size:12px;" class="btn btn-soft-neutral home-self-shop-btn text-decoration-none">
-                                <i class="bi bi-plus-lg"></i>
-                                <span>Create profile</span>
-                            </a>
+                            <form method="POST" action="/scan/member/self" class="m-0">
+                                @csrf
+                                <button style="padding:0;font-size:12px;" class="btn btn-soft-neutral home-self-shop-btn" type="submit">
+                                    <i class="bi bi-plus-lg"></i>
+                                    <span>Create profile</span>
+                                </button>
+                            </form>
                         @endif
                     </div>
                 </div>
@@ -210,7 +209,7 @@
 
                 <div class="stack-list">
                     @forelse ($history as $record)
-                        <div class="history-card home-history-card">
+                        <a href="{{ $record->product ? '/products/' . $record->product->id : '/scan/history' }}" class="history-card home-history-card text-decoration-none text-reset">
                             <div class="home-history-thumb">
                                 <img src="{{ famshopProductImage($record->product->image_url ?? null) }}" alt="{{ $record->product->pr_name ?? 'Product' }}">
                             </div>
@@ -222,7 +221,7 @@
                                 <span class="history-status-badge {{ $statusClass($record->match_status) }}">{{ $statusLabel($record->match_status) }}</span>
                                 <small>{{ optional($record->scan_date)->format('M d') }}</small>
                             </div>
-                        </div>
+                        </a>
                     @empty
                         <div class="history-card home-history-card">
                             <div class="home-history-main">

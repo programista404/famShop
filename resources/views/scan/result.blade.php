@@ -14,7 +14,7 @@
             </a>
         </div>
 
-        <div class="content-block">
+        <div class="content-block result-page">
             <div class="product-card result-product-card">
                 <div class="product-header">
                     <div class="result-product-media text-center">
@@ -38,18 +38,21 @@
             </div>
 
             <div class="status-alert {{ $matchStatus === 'safe' ? 'safe' : '' }}">
-                <div class="status-icon"><i class="bi {{ $matchStatus === 'safe' ? 'bi-check' : 'bi-x' }}"></i></div>
-                <span>
-                    @if ($matchStatus === 'safe')
-                        Safe for {{ $member->name_member }}
-                    @elseif ($matchStatus === 'over_budget')
-                        Over {{ $budgetResult['exceeded_period'] }} for {{ $member->name_member }}
-                    @elseif ($matchStatus === 'unsafe_over_budget')
-                        Unsafe and over {{ $budgetResult['exceeded_period'] }} for {{ $member->name_member }}
-                    @else
-                        {{ ucfirst(str_replace('_', ' ', $matchStatus)) }} for {{ $member->name_member }}
-                    @endif
-                </span>
+                <div class="status-icon"><i class="bi {{ $matchStatus === 'safe' ? 'bi-check-lg' : 'bi-exclamation-lg' }}"></i></div>
+                <div class="status-copy">
+                    <p class="status-eyebrow mb-1">{{ $matchStatus === 'safe' ? 'Safety Check Passed' : 'Safety Attention Needed' }}</p>
+                    <strong class="status-title">
+                        @if ($matchStatus === 'safe')
+                            Safe for {{ $member->name_member }}
+                        @elseif ($matchStatus === 'over_budget')
+                            Over {{ $budgetResult['exceeded_period'] }} for {{ $member->name_member }}
+                        @elseif ($matchStatus === 'unsafe_over_budget')
+                            Unsafe and over {{ $budgetResult['exceeded_period'] }} for {{ $member->name_member }}
+                        @else
+                            {{ ucfirst(str_replace('_', ' ', $matchStatus)) }} for {{ $member->name_member }}
+                        @endif
+                    </strong>
+                </div>
             </div>
 
             <div class="mt-3">
@@ -65,9 +68,17 @@
             </div>
 
             <div class="info-grid">
-                <div class="info-tile warning">
+                <div class="info-tile {{ $allergyResult['safe'] ? 'success' : 'warning' }}">
                     <label>Safety Alert</label>
-                    <value>{{ $allergyResult['safe'] ? 'No allergens detected' : implode(', ', $allergyResult['triggered_allergens']) }}</value>
+                    @if ($allergyResult['safe'])
+                        <p class="info-value mb-0">No allergens detected</p>
+                    @else
+                        <div class="allergen-chip-list">
+                            @foreach ($allergyResult['triggered_allergens'] as $allergen)
+                                <span class="allergen-chip">{{ $allergen }}</span>
+                            @endforeach
+                        </div>
+                    @endif
                 </div>
             </div>
 
