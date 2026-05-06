@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\ScanHistory;
 use App\Services\AllergyChecker;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Http;
 
 class ScanController extends Controller
@@ -111,7 +112,7 @@ class ScanController extends Controller
             ->when(filled($product->brand), function ($query) use ($product) {
                 $query->where('brand', $product->brand);
             }, function ($query) use ($product) {
-                $query->where('pr_name', 'like', '%' . str($product->pr_name)->before(' ')->value() . '%');
+                $query->where('pr_name', 'like', '%' . (string) Str::of($product->pr_name)->before(' ') . '%');
             })
             ->latest()
             ->take(8)

@@ -42,6 +42,10 @@
                 <span>
                     @if ($matchStatus === 'safe')
                         Safe for {{ $member->name_member }}
+                    @elseif ($matchStatus === 'over_budget')
+                        Over {{ $budgetResult['exceeded_period'] }} for {{ $member->name_member }}
+                    @elseif ($matchStatus === 'unsafe_over_budget')
+                        Unsafe and over {{ $budgetResult['exceeded_period'] }} for {{ $member->name_member }}
                     @else
                         {{ ucfirst(str_replace('_', ' ', $matchStatus)) }} for {{ $member->name_member }}
                     @endif
@@ -64,10 +68,6 @@
                 <div class="info-tile warning">
                     <label>Safety Alert</label>
                     <value>{{ $allergyResult['safe'] ? 'No allergens detected' : implode(', ', $allergyResult['triggered_allergens']) }}</value>
-                </div>
-                <div class="info-tile success">
-                    <label>Budget</label>
-                    <value>{{ $budgetResult['within_budget'] ? 'Within budget' : 'Over ' . $budgetResult['exceeded_period'] }}</value>
                 </div>
             </div>
 
